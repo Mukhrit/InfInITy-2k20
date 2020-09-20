@@ -4,6 +4,8 @@ var path = require('path');
 const bodyParser = require('body-parser');
 var logger = require('morgan');
 const mongoose = require('mongoose');
+var LiveStats=require('./models/statsModal');
+const scrappper = require('./utils/livescrapper');
 require('dotenv').config();
 
 const app = express();
@@ -25,6 +27,20 @@ const PORT = process.env.PORT || 5000;
 console.log('Starting server');
 app.listen(PORT, () => console.log(`Server started on port :${PORT}`));
 
+var livestatsupdate=()=>{
+    scrappper().then((obj)=>{
+      LiveStats.findById("5f67144aa1755d436425ffa5").then((sta)=>{
+              if (obj.success) {
+                sta.success = true;
+                sta.list = obj.stats;
+                sta.save().then((res) => console.log(res));
+              }
+      })
+    })
+
+};
+
+
 console.log('Connecting to MongoDB');
 mongoose.connect(
   process.env.MONGODB_URI,
@@ -33,6 +49,7 @@ mongoose.connect(
     if (err) return console.error(err);
 
     console.log('MongoDB connection established!');
+    setInterval(livestatsupdate, 120000);
   }
 );
 

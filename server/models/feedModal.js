@@ -9,6 +9,8 @@ const feed = new Schema({
     type: String,
     required: true,
   },
+},{
+  timestamps:true
 });
 var Feedbacks = mongoose.model('feedback', feed);
 
